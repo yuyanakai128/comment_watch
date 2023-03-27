@@ -109,11 +109,7 @@ class SendNotification extends Command
             $this->info('double comment');
         }else{
             $this->info($comment);
-            Comment::create([
-                'user_id' => $this->user->id,
-                'goods_id' => $goods->id,
-                'comment' => $comment,
-            ]);
+            $this->sendEmail($goods,$comment);
         }
     }
 
@@ -151,84 +147,47 @@ class SendNotification extends Command
         $this->driver = RemoteWebDriver::create('http://localhost:4444', $caps);
     }
 
-    public function sendEmail($results, $user) {
+    public function sendEmail($goods, $comment) {
+        $user = $this->user;
 
-        $items = $results;
-        $items = array_unique($items,SORT_REGULAR);
-
-        $mailLimit = $user->mailLimit;
+        $content = $user->name."様 コメントがあります。". PHP_EOL .PHP_EOL;
         
-        $urls = TimeLine::where('user_id',$user->id)->get();
-        foreach($urls as $url) {
-            foreach($results as $key => $result) {
-                if($url->url == $result['url']) {
-                    unset($items[$key]);break;
-                }
-            }
+        $content .= "商品名　".$goods->itemName. PHP_EOL ."商品ページ ".$goods->link. PHP_EOL;
+
+        $content .= "<img src='".$goods->itemImageUrl."' alt='出品画面' >";
+        // if(isset($this->keyword)) {
+        //     $content .= "キーワード : " .$this->keyword. PHP_EOL . PHP_EOL . PHP_EOL;
+        // }
+
+        $email = $user->email;
+
+        $user_id = 'be36961ex';
+        $api_key = '9Vya0hHkGEzbplMrCMEIhSolrwy8PVmVq98JBTr7ZmWCUXW8mNRMnM4njwXjwiju';
+        \Blastengine\Client::initialize($user_id, $api_key);
+        $transaction = new \Blastengine\Transaction();
+        $transaction
+            ->to($email)
+            ->from("devlife128@gmail.com")
+            ->subject('コメントがあります。')
+            ->text_part($content);
+        try {
+            $transaction->send();
+        } catch ( Exception $ex ) {
+            // Error
         }
-        $content = $user->name."様 商品があります。". PHP_EOL .PHP_EOL;
         
-        if(count($items) > 0) {
-            
-            foreach($items as $item) {
-                
-                $content .= "商品名　".$item['itemName']. PHP_EOL ."商品価格　".$item['currentPrice']."円". PHP_EOL ."商品サービス　".$item['service']. PHP_EOL ."商品ページ ".$item['url']. PHP_EOL;
-                if(isset($this->keyword)) {
-                    $content .= "キーワード : " .$this->keyword. PHP_EOL . PHP_EOL . PHP_EOL;
-                }
-            }
-            $email = $user->email;
-            // $user_id = 'trialphoenix';
-            // $api_key = '2aUSJ6gntGT6paez6XPaihMc0XEXZDWJqbwIVbRmpSWXwsDCKGjUZRDjfMIjt4Hw';
-            $user_id = 'phoenix';
-            $api_key = 'lTvBUaSpw6ZsG5erwfjiAcTpxOw3zM7t4jhqSBNa0D7hll5njQwKsMj1abBVt1cK';
-            \Blastengine\Client::initialize($user_id, $api_key);
-            $transaction = new \Blastengine\Transaction();
-            $transaction
-                ->to($email)
-                ->from("devlife128@gmail.com")
-                ->subject('商品があります。')
-                ->text_part($content);
-            try {
-                $transaction->send();
-            } catch ( Exception $ex ) {
-                // Error
-            }
-            
-            // 結果の出力
-            $this->info("sent");
+        // 結果の出力
+        $this->info("sent");
 
-            DB::beginTransaction();
-            try {
-                $inserted_data = [];
-                foreach($items as $item) {
-                    array_push($inserted_data,[
-                        'user_id' => $user->id,
-                        'itemName' => $item['itemName'],
-                        'keyword' => $this->keyword,
-                        'itemImageUrl' => $item['itemImageUrl'],
-                        'currentPrice' => $item['currentPrice'],
-                        'url' => $item['url'],
-                        'service' => $item['service'],
-                        "created_at" =>  \Carbon\Carbon::now(), # new \Datetime()
-                        "updated_at" => \Carbon\Carbon::now(),  # new \Datetime()
-                    ]) ;
-                }
-                
-                TimeLine::lockForUpdate()->insert($inserted_data);
-                $availableUser = User::where('id',$user->id)->lockForUpdate()->first();
-                $mailSent = $availableUser->mailSent;
-                User::where('id',$user->id)->lockForUpdate()->update(array('mailSent' => $mailSent + 1));
-
-                DB::commit();
-            } catch (\Exception $e) {
-                DB::rollback();
-                
-            }
-            
-        } else {
-            $this->info("There are no matching items");
-        }
+        Comment::create([
+            'user_id' => $user->id,
+            'goods_id' => $goods->id,
+            'comment' => $comment,
+        ]);
+        
+        $availableUser = User::where('id',$user->id)->lockForUpdate()->first();
+        $mailSent = $availableUser->mailSent;
+        User::where('id',$user->id)->lockForUpdate()->update(array('mailSent' => $mailSent + 1));
         
     }
 }
