@@ -88,18 +88,22 @@ class SendNotification extends Command
                     try {
                         $crawler->filter('#item-info .mer-spacing-b-24 .mer-spacing-b-16 mer-text')->each(function($node) use ($item) {
                             $this->storeComments($node->text(),$item);
+                            $this->info('double comment');
                         });
                         
                     }catch(\Throwable  $e){
+                        $this->info(json_encode($e));
                         continue;
                     }
-
+                    $this->info("next goods");
                 }
-
+                $this->info("next notification");
                 $this->driver->close();
 
                 // $this->sendEmail($this->results, $this->user);
             }
+
+            $this->info("next user");
         }
         $this->info("end");
         return 0;
