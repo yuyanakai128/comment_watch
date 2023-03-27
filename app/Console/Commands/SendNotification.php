@@ -95,11 +95,12 @@ class SendNotification extends Command
                                         $this->info("mail limited");
                                         $this->status = false;
                                     }else{
-                                        $this->storeComments($node->text(),$item,$mailSent);
+                                        $this->storeComments($node->text(),$item,$availableUser->mailSent);
                                     }
                                 });
                                 
                             }catch(\Throwable  $e){
+                                $this->info('ok');
                                 $this->info(json_encode($e));
                                 continue;
                             }
@@ -179,7 +180,6 @@ class SendNotification extends Command
         //     $content .= "キーワード : " .$this->keyword. PHP_EOL . PHP_EOL . PHP_EOL;
         // }
             
-        $this->info($content);
         $email = $user->email;
 
         // $user_id = 'be36961ex';
