@@ -15,6 +15,8 @@ use Facebook\WebDriver\WebDriverRadios;
 use Facebook\WebDriver\WebDriverSelect;
 use Symfony\Component\DomCrawler\Crawler;
 
+use Illuminate\Support\Carbon;
+
 use DB;
 use App\Models\User;
 use App\Models\Goods;
@@ -108,7 +110,6 @@ class SendNotification extends Command
         if(count($comments) > 0) {
             $this->info('double comment');
         }else{
-            $this->info($comment);
             $this->sendEmail($goods,$comment);
         }
     }
@@ -136,7 +137,7 @@ class SendNotification extends Command
     public function initBrowser()
     {
         $options = new ChromeOptions();
-        $arguments = ['--disable-gpu', '--no-sandbox', '--disable-images', '--headless'];
+        $arguments = ['--disable-gpu', '--no-sandbox', '--disable-images'];
 
         $options->addArguments($arguments);
 
@@ -148,32 +149,42 @@ class SendNotification extends Command
     }
 
     public function sendEmail($goods, $comment) {
+
+        $this->info($comment);
         $user = $this->user;
 
         $content = $user->name."様 コメントがあります。". PHP_EOL .PHP_EOL;
         
         $content .= "商品名　".$goods->itemName. PHP_EOL ."商品ページ ".$goods->link. PHP_EOL;
-
-        $content .= "<img src='".$goods->itemImageUrl."' alt='出品画面' >";
+        $content .= "コメント　". PHP_EOL .$comment. PHP_EOL;
+        // $content .= "<img src='".$goods->itemImageUrl."' alt='出品画面' >";
         // if(isset($this->keyword)) {
         //     $content .= "キーワード : " .$this->keyword. PHP_EOL . PHP_EOL . PHP_EOL;
         // }
-
+            
+        $this->info($content);
         $email = $user->email;
 
         $user_id = 'be36961ex';
         $api_key = '9Vya0hHkGEzbplMrCMEIhSolrwy8PVmVq98JBTr7ZmWCUXW8mNRMnM4njwXjwiju';
+        // $user_id = 'phoenix';
+        // $api_key = 'lTvBUaSpw6ZsG5erwfjiAcTpxOw3zM7t4jhqSBNa0D7hll5njQwKsMj1abBVt1cK';
+
+        $img = storage_path('image') . '/' . 'temp'.Carbon::now()->timestamp.'.jpg';
+        copy($goods->itemImageUrl, $img);
+
         \Blastengine\Client::initialize($user_id, $api_key);
         $transaction = new \Blastengine\Transaction();
         $transaction
             ->to($email)
-            ->from("devlife128@gmail.com")
+            ->from("suyahiko@yahoo.co.jp")
             ->subject('コメントがあります。')
+            ->attachment($img)
             ->text_part($content);
         try {
             $transaction->send();
         } catch ( Exception $ex ) {
-            // Error
+            $this->info(json_encode($ex));
         }
         
         // 結果の出力
