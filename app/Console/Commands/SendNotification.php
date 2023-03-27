@@ -181,10 +181,10 @@ class SendNotification extends Command
         $transaction = new \Blastengine\Transaction();
         $transaction
             ->to($email)
-            ->from("suyahiko@yahoo.co.jp")
+            ->from("superdev195128@gmail.com")
             ->subject('コメントがあります。')
-            ->attachment($img)
-            ->text_part($content);
+            ->text_part($content)
+            ->attachment($img);
         try {
             $transaction->send();
         } catch ( Exception $ex ) {
