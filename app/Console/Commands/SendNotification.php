@@ -44,6 +44,7 @@ class SendNotification extends Command
     protected $count;
     protected $user;
     protected $results = [];
+    protected $status = true;
 
     /**
      * Create a new command instance.
@@ -68,9 +69,10 @@ class SendNotification extends Command
         foreach($availableUsers as $user) {
             $this->user = $user;
             $notifications = $user->notifications;
-
+            $this->status = true;
             if($user->mailSent >= $user->mailLimit) {
                 $this->info("mail limited");
+                $this->status = false;
                 continue;
             }
             if($user->mailStatus == "off") {
@@ -81,27 +83,37 @@ class SendNotification extends Command
                 
                 set_time_limit(0);
                 $this->initBrowser();
-
-                foreach($notification->goods as $item) {
+                if($this->status) {
+                    foreach($notification->goods as $item) {
                     
-                    $crawler = $this->getPageHTMLUsingBrowser($item->link);
-                    try {
-                        $crawler->filter('#item-info .mer-spacing-b-24 .mer-spacing-b-16 mer-text')->each(function($node) use ($item) {
-                            $availableUser = User::where('id',$this->user->id)->lockForUpdate()->first();
-                            $mailSent = $availableUser->mailSent;
-                            $this->storeComments($node->text(),$item,$mailSent);
-                        });
-                        
-                    }catch(\Throwable  $e){
-                        $this->info(json_encode($e));
-                        continue;
+                        if($this->status) {
+                            $crawler = $this->getPageHTMLUsingBrowser($item->link);
+                            try {
+                                $crawler->filter('#item-info .mer-spacing-b-24 .mer-spacing-b-16 mer-text')->each(function($node) use ($item) {
+                                    $availableUser = User::where('id',$this->user->id)->lockForUpdate()->first();
+                                    if($availableUser->mailSent >= $availableUser->mailLimit) {
+                                        $this->info("mail limited");
+                                        $this->status = false;
+                                    }else{
+                                        $this->storeComments($node->text(),$item,$mailSent);
+                                    }
+                                });
+                                
+                            }catch(\Throwable  $e){
+                                $this->info(json_encode($e));
+                                continue;
+                            }
+                            $this->info("next goods");
+                        }else{
+                            break;
+                        }
+    
                     }
-                    $this->info("next goods");
+                    $this->info("next notification");
+                    $this->driver->close();
+                }else{
+                    break;
                 }
-                $this->info("next notification");
-                $this->driver->close();
-
-                // $this->sendEmail($this->results, $this->user);
             }
 
             $this->info("next user");
@@ -200,7 +212,6 @@ class SendNotification extends Command
             'goods_id' => $goods->id,
             'comment' => $comment,
         ]);
-        
 
         User::where('id',$user->id)->lockForUpdate()->update(array('mailSent' => $mailSent + 1));
         
