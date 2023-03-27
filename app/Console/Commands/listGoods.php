@@ -101,16 +101,21 @@ class listGoods extends Command
                 $crawler = $this->getPageHTMLUsingBrowser($url);
                 try {
                     $crawler->filter('#item-grid li')->each(function ($node) {
+                        $this->info($this->count);
                         if($this->count > self::SENT_COUNT) return false;
                         $url = $node->filter('a')->attr('href');
                         $itemImageUrl = $node->filter('mer-item-thumbnail')->attr('src');
                         $itemName   = $node->filter('mer-item-thumbnail')->attr('alt');
                         $itemName = str_replace("のサムネイル","",$itemName);
+                        $price = $node->filter('mer-item-thumbnail')->attr('price');
+                        $this->info($price);
                         array_push($this->results, [
                             'link' => 'https://jp.mercari.com'.$url,
                             'itemImageUrl' => $itemImageUrl,
                             'itemName' => $itemName,
+                            'price' => $price,
                         ]);
+                       
                         $this->count++;
                     });
                 }catch(\Throwable  $e){
@@ -125,6 +130,8 @@ class listGoods extends Command
 
         $this->info("end");
         
+        sleep(60);
+        
         return 0;
     }
 
@@ -138,7 +145,7 @@ class listGoods extends Command
         $this->driver->wait(5000,1000)->until(
             function () {
                 $elements = $this->driver->findElements(WebDriverBy::XPath("//div[contains(@id,'search-result')]"));
-                sleep(2);
+                sleep(5);
                 return count($elements) > 0;
             },
         );
