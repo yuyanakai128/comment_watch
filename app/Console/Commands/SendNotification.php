@@ -174,7 +174,7 @@ class SendNotification extends Command
         $user_id = 'phoenix';
         $api_key = 'lTvBUaSpw6ZsG5erwfjiAcTpxOw3zM7t4jhqSBNa0D7hll5njQwKsMj1abBVt1cK';
 
-        $img = storage_path('image') . '/' . 'temp'.Carbon::now()->timestamp.'.jpg';
+        $img = storage_path('image') . '/' . $goods->itemName .'.jpg';
         copy($goods->itemImageUrl, $img);
 
         \Blastengine\Client::initialize($user_id, $api_key);
