@@ -87,8 +87,9 @@ class SendNotification extends Command
                     $crawler = $this->getPageHTMLUsingBrowser($item->link);
                     try {
                         $crawler->filter('#item-info .mer-spacing-b-24 .mer-spacing-b-16 mer-text')->each(function($node) use ($item) {
-                            $this->storeComments($node->text(),$item);
-                            $this->info('double comment');
+                            $availableUser = User::where('id',$this->user->id)->lockForUpdate()->first();
+                            $mailSent = $availableUser->mailSent;
+                            $this->storeComments($node->text(),$item,$mailSent);
                         });
                         
                     }catch(\Throwable  $e){
@@ -109,12 +110,12 @@ class SendNotification extends Command
         return 0;
     }
 
-    public function storeComments($comment, $goods) {
+    public function storeComments($comment, $goods,$mailSent) {
         $comments = Comment::where('goods_id',$goods->id)->where('comment',$comment)->get();
         if(count($comments) > 0) {
             $this->info('double comment');
         }else{
-            $this->sendEmail($goods,$comment);
+            $this->sendEmail($goods,$comment,$mailSent);
         }
     }
 
@@ -200,8 +201,7 @@ class SendNotification extends Command
             'comment' => $comment,
         ]);
         
-        $availableUser = User::where('id',$user->id)->lockForUpdate()->first();
-        $mailSent = $availableUser->mailSent;
+
         User::where('id',$user->id)->lockForUpdate()->update(array('mailSent' => $mailSent + 1));
         
     }
