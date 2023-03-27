@@ -166,7 +166,7 @@ class SendNotification extends Command
         $this->driver = RemoteWebDriver::create('http://localhost:4444', $caps);
     }
 
-    public function sendEmail($goods, $comment) {
+    public function sendEmail($goods, $comment,$mailSent) {
 
         $this->info($comment);
         $user = $this->user;
