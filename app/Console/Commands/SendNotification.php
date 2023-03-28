@@ -104,6 +104,8 @@ class SendNotification extends Command
                                     Goods::where('id',$item->id)->delete();
                                 }
                                 sleep(1);
+                            }else{
+                                Goods::where('id',$item->id)->delete();
                             }
                             
                             $this->info("next goods");
