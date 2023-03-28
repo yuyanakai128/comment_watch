@@ -136,6 +136,7 @@ class SendNotification extends Command
      */
     public function getPageHTMLUsingBrowser(string $url)
     {
+        $this->info($url);
         $response = $this->driver->get($url);
 
         $this->driver->wait(5000,1000)->until(
