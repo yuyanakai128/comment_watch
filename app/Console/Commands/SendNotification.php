@@ -174,7 +174,7 @@ class SendNotification extends Command
 
         $content = $user->name."様 コメントがあります。". PHP_EOL .PHP_EOL;
 
-        $title =  "商品名 :　".$goods->itemName. PHP_EOL ." : ".$goods->price."円". PHP_EOL ."商品ページ : ".$goods->link. PHP_EOL."コメント　: ". PHP_EOL .$comment;
+        $title =  "商品名 :　".$goods->itemName. PHP_EOL ." : ".$goods->price."円". PHP_EOL ."商品ページ : ".$goods->link. PHP_EOL;
         
         $content .= "商品名　: ".$goods->itemName. PHP_EOL ."商品価格　: ".$goods->price."円". PHP_EOL ."商品ページ : ".$goods->link. PHP_EOL;
         $content .= "コメント　: ". PHP_EOL .$comment. PHP_EOL;
