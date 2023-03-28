@@ -101,6 +101,7 @@ class SendNotification extends Command
                                 
                             }catch(\Throwable  $e){
                                 $this->info('ok');
+                                $this->driver->close();
                                 $this->info(json_encode($e));
                                 continue;
                             }
