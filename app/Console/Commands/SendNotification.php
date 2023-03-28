@@ -101,7 +101,7 @@ class SendNotification extends Command
                                     });
                                     
                                 }catch(\Throwable  $e){
-                                    
+                                    Goods::where('id',$item->id)->delete();
                                 }
                                 sleep(1);
                             }
