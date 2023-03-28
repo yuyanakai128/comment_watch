@@ -87,22 +87,25 @@ class SendNotification extends Command
                     foreach($notification->goods as $item) {
                         $this->initBrowser();
                         if($this->status) {
-                            $crawler = $this->getPageHTMLUsingBrowser($item->link);
-                            try {
-                                $crawler->filter('#item-info .mer-spacing-b-24 .mer-spacing-b-16 mer-text')->each(function($node) use ($item) {
-                                    $availableUser = User::where('id',$this->user->id)->lockForUpdate()->first();
-                                    if($availableUser->mailSent >= $availableUser->mailLimit) {
-                                        $this->info("mail limited");
-                                        $this->status = false;
-                                    }else{
-                                        $this->storeComments($node->text(),$item,$availableUser->mailSent);
-                                    }
-                                });
-                                
-                            }catch(\Throwable  $e){
-                                
+                            if(str_contains($url,'jp.mercari.com/item')){
+                                $crawler = $this->getPageHTMLUsingBrowser($item->link);
+                                try {
+                                    $crawler->filter('#item-info .mer-spacing-b-24 .mer-spacing-b-16 mer-text')->each(function($node) use ($item) {
+                                        $availableUser = User::where('id',$this->user->id)->lockForUpdate()->first();
+                                        if($availableUser->mailSent >= $availableUser->mailLimit) {
+                                            $this->info("mail limited");
+                                            $this->status = false;
+                                        }else{
+                                            $this->storeComments($node->text(),$item,$availableUser->mailSent);
+                                        }
+                                    });
+                                    
+                                }catch(\Throwable  $e){
+                                    
+                                }
+                                sleep(1);
                             }
-                            sleep(1);
+                            
                             $this->info("next goods");
                         }else{
                             break;
@@ -137,6 +140,7 @@ class SendNotification extends Command
     public function getPageHTMLUsingBrowser(string $url)
     {
         $this->info($url);
+
         $response = $this->driver->get($url);
 
         $this->driver->wait(5000,1000)->until(
