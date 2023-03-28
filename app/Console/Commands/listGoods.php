@@ -37,7 +37,7 @@ class listGoods extends Command
     protected $description = 'Command description';
 
     protected $driver;
-    public const SENT_COUNT = 100;
+    public const SENT_COUNT = 50;
     protected $count;
     protected $user;
     protected $results = [];
