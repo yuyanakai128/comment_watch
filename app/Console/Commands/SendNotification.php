@@ -173,9 +173,11 @@ class SendNotification extends Command
         $user = $this->user;
 
         $content = $user->name."様 コメントがあります。". PHP_EOL .PHP_EOL;
+
+        $title =  "商品名 :　".$goods->itemName. PHP_EOL ." : ".$goods->price."円". PHP_EOL ."商品ページ : ".$goods->link. PHP_EOL."コメント　: ". PHP_EOL .$comment;
         
-        $content .= "商品名　".$goods->itemName. PHP_EOL ."商品価格　".$goods->price. PHP_EOL ."商品ページ ".$goods->link. PHP_EOL;
-        $content .= "コメント　". PHP_EOL .$comment. PHP_EOL;
+        $content .= "商品名　: ".$goods->itemName. PHP_EOL ."商品価格　: ".$goods->price."円". PHP_EOL ."商品ページ : ".$goods->link. PHP_EOL;
+        $content .= "コメント　: ". PHP_EOL .$comment. PHP_EOL;
         // $content .= "<img src='".$goods->itemImageUrl."' alt='出品画面' >";
         // if(isset($this->keyword)) {
         //     $content .= "キーワード : " .$this->keyword. PHP_EOL . PHP_EOL . PHP_EOL;
@@ -196,7 +198,7 @@ class SendNotification extends Command
         $transaction
             ->to($email)
             ->from("superdev195128@gmail.com")
-            ->subject('コメントがあります。')
+            ->subject($title)
             ->text_part($content)
             ->attachment($img);
         try {
