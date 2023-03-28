@@ -87,7 +87,7 @@ class SendNotification extends Command
                     foreach($notification->goods as $item) {
                         $this->initBrowser();
                         if($this->status) {
-                            if(str_contains($url,'jp.mercari.com/item')){
+                            if(str_contains($item->link,'jp.mercari.com/item')){
                                 $crawler = $this->getPageHTMLUsingBrowser($item->link);
                                 try {
                                     $crawler->filter('#item-info .mer-spacing-b-24 .mer-spacing-b-16 mer-text')->each(function($node) use ($item) {
