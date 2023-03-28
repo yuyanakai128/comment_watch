@@ -88,8 +88,8 @@ class SendNotification extends Command
                         $this->initBrowser();
                         if($this->status) {
                             if(str_contains($item->link,'jp.mercari.com/item')){
-                                $crawler = $this->getPageHTMLUsingBrowser($item->link);
                                 try {
+                                    $crawler = $this->getPageHTMLUsingBrowser($item->link);
                                     $crawler->filter('#item-info .mer-spacing-b-24 .mer-spacing-b-16 mer-text')->each(function($node) use ($item) {
                                         $availableUser = User::where('id',$this->user->id)->lockForUpdate()->first();
                                         if($availableUser->mailSent >= $availableUser->mailLimit) {
