@@ -15,6 +15,7 @@ class Goods extends Model
         'notification_id',
         'link',
         'ItemImage',
+        'price',
     ];
 
     public function comments()

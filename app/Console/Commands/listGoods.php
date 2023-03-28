@@ -76,9 +76,9 @@ class listGoods extends Command
             }
 
             set_time_limit(0);
-            $this->initBrowser();
 
             foreach($notifications as $notification) {
+                $this->initBrowser();
                 $this->count = 1;
                 $this->results = [];
 
@@ -101,14 +101,12 @@ class listGoods extends Command
                 $crawler = $this->getPageHTMLUsingBrowser($url);
                 try {
                     $crawler->filter('#item-grid li')->each(function ($node) {
-                        $this->info($this->count);
                         if($this->count > self::SENT_COUNT) return false;
                         $url = $node->filter('a')->attr('href');
                         $itemImageUrl = $node->filter('mer-item-thumbnail')->attr('src');
                         $itemName   = $node->filter('mer-item-thumbnail')->attr('alt');
                         $itemName = str_replace("のサムネイル","",$itemName);
                         $price = $node->filter('mer-item-thumbnail')->attr('price');
-                        $this->info($price);
                         array_push($this->results, [
                             'link' => 'https://jp.mercari.com'.$url,
                             'itemImageUrl' => $itemImageUrl,
@@ -121,15 +119,16 @@ class listGoods extends Command
                 }catch(\Throwable  $e){
                     $this->info($e);
                 }
+                $this->driver->close();
+                $this->info('next notification');
 
                 $this->storeGoods($this->results, $notification->id);
             }
 
-            $this->driver->close();
         }
 
         $this->info("end");
-        
+
         sleep(60);
         
         return 0;
@@ -198,6 +197,7 @@ class listGoods extends Command
                 'itemName' => $item['itemName'],
                 'link' => $item['link'],
                 'itemImageUrl' => $item['itemImageUrl'],
+                'price' => $item['price'],
             ));
         }
         Goods::lockForUpdate()->insert($inserted_data);

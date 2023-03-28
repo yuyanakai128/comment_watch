@@ -82,10 +82,10 @@ class SendNotification extends Command
             foreach($notifications as $notification) {
                 
                 set_time_limit(0);
-                $this->initBrowser();
+
                 if($this->status) {
                     foreach($notification->goods as $item) {
-                    
+                        $this->initBrowser();
                         if($this->status) {
                             $crawler = $this->getPageHTMLUsingBrowser($item->link);
                             try {
@@ -104,14 +104,15 @@ class SendNotification extends Command
                                 $this->info(json_encode($e));
                                 continue;
                             }
+                            sleep(1);
                             $this->info("next goods");
                         }else{
                             break;
                         }
-    
+                        $this->driver->close();
                     }
                     $this->info("next notification");
-                    $this->driver->close();
+
                 }else{
                     break;
                 }
@@ -142,7 +143,7 @@ class SendNotification extends Command
         $this->driver->wait(5000,1000)->until(
             function () {
                 $elements = $this->driver->findElements(WebDriverBy::XPath("//div[contains(@id,'item-info')]"));
-                sleep(2);
+                sleep(3);
                 return count($elements) > 0;
             },
         );
