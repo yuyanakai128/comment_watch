@@ -59,7 +59,8 @@
                                             <th style="width:5%;">No</th>
                                             <th style="width:15%;">画像</th>
                                             <th style="width:60%;">コメント情報</th>
-                                            <th style="width:20%;">操作</th>
+                                            <th style="width:10%;">時間</th>
+                                            <th style="width:10%;">操作</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -70,10 +71,14 @@
                                                     <img src="{{$comment->goods->itemImageUrl}}" alt="" srcset="" width="100px" height="100px">
                                                 </td>
                                                 <td style="line-height: 2rem">
-                                                    {{$comment->comment}}<br>
+                                                    商品名　: {{$comment->goods->itemName}}円<br>
+                                                    商品価格　: {{$comment->goods->price}}円<br>
+                                                    {{$comment->comment}}
+                                                    
+                                                </td>
+                                                <td>
                                                     {{$comment->created_at?$comment->created_at->addHours(9)->format('Y-m-d H:i'):''}}
                                                 </td>
-                                            
                                                 <td>
                                                     <a href="{{ $comment->goods->link }}" target="_blank" class="btn btn-sm btn-block btn-primary mt-1">商品ページ</a>
                                                     <button type="button" class="btn btn-sm btn-block mt-1 btn-danger btn-delete-user" data-id="{{ $comment->id }}">削除</button>
