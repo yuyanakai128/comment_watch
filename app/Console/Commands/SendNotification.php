@@ -90,7 +90,7 @@ class SendNotification extends Command
                             try {
                                 $crawler = $this->getPageHTMLUsingBrowser($item->link);
                                 $text = $crawler->filter('#item-info .mer-spacing-b-24 .mer-spacing-b-16 mer-text')->siblings()->filter('span')->text();
-                                if(!str_contains($text,'日前')){
+                                if(str_contains($text,'分前')){
                                     $crawler->filter('#item-info .mer-spacing-b-24 .mer-spacing-b-16 mer-text')->each(function($node) use ($item) {
                                         $availableUser = User::where('id',$this->user->id)->lockForUpdate()->first();
                                         if($availableUser->mailSent >= $availableUser->mailLimit) {
