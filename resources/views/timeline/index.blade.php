@@ -65,6 +65,7 @@
                                     </thead>
                                     <tbody>
                                         @forelse($comments as $key => $comment)
+                                            @if ($comment->goods !== null)
                                             <tr>
                                                 <td>{{$counts - $key - ($comments->currentPage() - 1) * 50}}</td>
                                                 <td>
@@ -84,6 +85,8 @@
                                                     <button type="button" class="btn btn-sm btn-block mt-1 btn-danger btn-delete-user" data-id="{{ $comment->id }}">削除</button>
                                                     
                                             </tr>
+                                            @endif
+                                            
                                             @empty
                                             <tr>
                                                 <td colspan="7"><h4 class="text-center mt-3">一致するレコードがありません</h4></td>

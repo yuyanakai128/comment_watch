@@ -130,7 +130,7 @@ class SendNotification extends Command
         }
     }
 
-        /**
+    /**
      * Get page using browser.
      */
     public function getPageHTMLUsingBrowser(string $url)
