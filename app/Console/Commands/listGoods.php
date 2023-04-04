@@ -131,7 +131,7 @@ class listGoods extends Command
 
         $this->info("end");
 
-        sleep(60);
+        sleep(300);
         
         return 0;
     }
