@@ -89,9 +89,9 @@ class SendNotification extends Command
                         if($this->status) {
                             try {
                                 $crawler = $this->getPageHTMLUsingBrowser($item->link);
-                                $text = $crawler->filter('#item-info .mer-spacing-b-24 .mer-spacing-b-16 mer-text')->siblings()->filter('span')->text();
-                                if(str_contains($text,'分前')){
-                                    $crawler->filter('#item-info .mer-spacing-b-24 .mer-spacing-b-16 mer-text')->each(function($node) use ($item) {
+                                $crawler->filter('#item-info .mer-spacing-b-24 .mer-spacing-b-16 mer-text')->each(function($node) use ($item) {
+                                    $text = $node->siblings()->filter('span')->text();
+                                    if(str_contains($text,'分前')){
                                         $availableUser = User::where('id',$this->user->id)->lockForUpdate()->first();
                                         if($availableUser->mailSent >= $availableUser->mailLimit) {
                                             $this->info("mail limited");
@@ -99,8 +99,11 @@ class SendNotification extends Command
                                         }else{
                                             $this->storeComments($node->text(),$item,$availableUser->mailSent);
                                         }
-                                    });
-                                }
+                                    }else{
+                                        $this->info("old comment");
+                                    }
+                                    
+                                });
                             }catch(\Throwable  $e){
                                 
                             }
