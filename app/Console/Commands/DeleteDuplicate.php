@@ -39,8 +39,8 @@ class DeleteDuplicate extends Command
      */
     public function handle()
     {
-        $sql = 'DELETE FROM register_url WHERE ID NOT IN (SELECT * FROM (SELECT MAX(ID) AS MaxRecordID FROM register_url GROUP BY user_id,itemName,itemImageUrl) AS tmptable);';
-        DB::statement($sql);
+        // $sql = 'DELETE FROM register_url WHERE ID NOT IN (SELECT * FROM (SELECT MAX(ID) AS MaxRecordID FROM register_url GROUP BY user_id,itemName,itemImageUrl) AS tmptable);';
+        // DB::statement($sql);
         return 0;
     }
 }

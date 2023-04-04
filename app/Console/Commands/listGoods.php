@@ -37,7 +37,7 @@ class listGoods extends Command
     protected $description = 'Command description';
 
     protected $driver;
-    public const SENT_COUNT = 50;
+    public const SENT_COUNT = 100;
     protected $count;
     protected $user;
     protected $results = [];
@@ -107,14 +107,16 @@ class listGoods extends Command
                         $itemName   = $node->filter('mer-item-thumbnail')->attr('alt');
                         $itemName = str_replace("のサムネイル","",$itemName);
                         $price = $node->filter('mer-item-thumbnail')->attr('price');
-                        array_push($this->results, [
-                            'link' => 'https://jp.mercari.com'.$url,
-                            'itemImageUrl' => $itemImageUrl,
-                            'itemName' => $itemName,
-                            'price' => $price,
-                        ]);
-                       
-                        $this->count++;
+                        if(!str_contains($url,'https://mercari-shops.com')){
+                            array_push($this->results, [
+                                'link' => 'https://jp.mercari.com'.$url,
+                                'itemImageUrl' => $itemImageUrl,
+                                'itemName' => $itemName,
+                                'price' => $price,
+                            ]);
+                            
+                            $this->count++;
+                        }
                     });
                 }catch(\Throwable  $e){
                     $this->info($e);
@@ -180,18 +182,6 @@ class listGoods extends Command
             }
         }
         foreach($items as $item) {
-            if((count($goods) + count($inserted_data) ) >= self::SENT_COUNT) {
-                $this->info('delete');
-                $limit = count($goods) + count($inserted_data) - self::SENT_COUNT;
-
-                $deleted_items = Goods::where('notification_id',$notification_id)->orderBy('id','DESC')->take($limit)->get();
-                $ids = [];
-                foreach($deleted_items as $item) {
-                    array_push('ids',$item->id);
-                }
-                Comment::whereIn('goods_id',$ids)->delete();
-                Goods::where('notification_id',$notification_id)->orderBy('id','DESC')->take($limit)->delete();
-            }
             array_push($inserted_data,array(
                 'notification_id' => $notification_id,
                 'itemName' => $item['itemName'],
@@ -199,6 +189,20 @@ class listGoods extends Command
                 'itemImageUrl' => $item['itemImageUrl'],
                 'price' => $item['price'],
             ));
+        }
+        if((count($goods) + count($inserted_data) ) > self::SENT_COUNT) {
+            $this->info("goods count".count($goods));
+            $this->info("inserted_data count".count($inserted_data));
+            $this->info('delete');
+            $limit = count($goods) + count($inserted_data) - self::SENT_COUNT;
+
+            $deleted_items = Goods::where('notification_id',$notification_id)->orderBy('id','DESC')->take($limit)->get();
+            
+            foreach($deleted_items as $key => $item) {
+                Comment::where('goods_id',$item->id)->delete();
+            }
+            
+            Goods::where('notification_id',$notification_id)->orderBy('id','DESC')->take($limit)->delete();
         }
         Goods::lockForUpdate()->insert($inserted_data);
     }
