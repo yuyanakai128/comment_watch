@@ -186,10 +186,10 @@ class SendNotification extends Command
             
         $email = $user->email;
 
-        // $user_id = 'be36961ex';
-        // $api_key = '9Vya0hHkGEzbplMrCMEIhSolrwy8PVmVq98JBTr7ZmWCUXW8mNRMnM4njwXjwiju';
-        $user_id = 'phoenix';
-        $api_key = 'lTvBUaSpw6ZsG5erwfjiAcTpxOw3zM7t4jhqSBNa0D7hll5njQwKsMj1abBVt1cK';
+        $user_id = 'be36961ex';
+        $api_key = '9Vya0hHkGEzbplMrCMEIhSolrwy8PVmVq98JBTr7ZmWCUXW8mNRMnM4njwXjwiju';
+        // $user_id = 'phoenix';
+        // $api_key = 'lTvBUaSpw6ZsG5erwfjiAcTpxOw3zM7t4jhqSBNa0D7hll5njQwKsMj1abBVt1cK';
 
         $img = storage_path('image') . '/' . $goods->itemName .'.jpg';
         copy($goods->itemImageUrl, $img);
