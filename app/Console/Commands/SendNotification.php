@@ -102,13 +102,14 @@ class SendNotification extends Command
                                     });
                                 }
                             }catch(\Throwable  $e){
-                                continue;
+                                
                             }
-                            $this->info("next goods");
+                            
                         }else{
                             break;
                         }
                         $this->driver->close();
+                        $this->info("next goods");
                     }
                     $this->info("next notification");
 
