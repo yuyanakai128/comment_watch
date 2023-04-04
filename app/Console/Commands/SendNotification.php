@@ -89,18 +89,20 @@ class SendNotification extends Command
                         if($this->status) {
                             try {
                                 $crawler = $this->getPageHTMLUsingBrowser($item->link);
-                                $crawler->filter('#item-info .mer-spacing-b-24 .mer-spacing-b-16 mer-text')->each(function($node) use ($item) {
-                                    $availableUser = User::where('id',$this->user->id)->lockForUpdate()->first();
-                                    if($availableUser->mailSent >= $availableUser->mailLimit) {
-                                        $this->info("mail limited");
-                                        $this->status = false;
-                                    }else{
-                                        $this->storeComments($node->text(),$item,$availableUser->mailSent);
-                                    }
-                                });
-                                
+                                $text = $crawler->filter('#item-info .mer-spacing-b-24 .mer-spacing-b-16 mer-text')->siblings()->filter('span')->text();
+                                if(!str_contains($text,'日前')){
+                                    $crawler->filter('#item-info .mer-spacing-b-24 .mer-spacing-b-16 mer-text')->each(function($node) use ($item) {
+                                        $availableUser = User::where('id',$this->user->id)->lockForUpdate()->first();
+                                        if($availableUser->mailSent >= $availableUser->mailLimit) {
+                                            $this->info("mail limited");
+                                            $this->status = false;
+                                        }else{
+                                            $this->storeComments($node->text(),$item,$availableUser->mailSent);
+                                        }
+                                    });
+                                }
                             }catch(\Throwable  $e){
-                                Goods::where('id',$item->id)->delete();
+                                continue;
                             }
                             $this->info("next goods");
                         }else{
