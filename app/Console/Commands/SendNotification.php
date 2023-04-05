@@ -64,7 +64,7 @@ class SendNotification extends Command
     public function handle()
     {
         $this->info("start");
-
+        
         $availableUsers = User::where('is_admin',0)->where('active',1)->get();
         foreach($availableUsers as $user) {
             $this->user = $user;
@@ -92,12 +92,12 @@ class SendNotification extends Command
                                 $crawler->filter('#item-info .mer-spacing-b-24 .mer-spacing-b-16 mer-text')->each(function($node) use ($item) {
                                     $text = $node->siblings()->filter('span')->text();
                                     if(str_contains($text,'分前')){
-                                        $availableUser = User::where('id',$this->user->id)->lockForUpdate()->first();
+                                        $availableUser = User::find($this->user->id);
                                         if($availableUser->mailSent >= $availableUser->mailLimit) {
                                             $this->info("mail limited");
                                             $this->status = false;
                                         }else{
-                                            $this->storeComments($node->text(),$item,$availableUser->mailSent);
+                                            $this->storeComments($node->text(),$item);
                                         }
                                     }else{
                                         $this->info("old comment");
@@ -127,12 +127,12 @@ class SendNotification extends Command
         return 0;
     }
 
-    public function storeComments($comment, $goods,$mailSent) {
-        $comments = Comment::where('goods_id',$goods->id)->where('comment',$comment)->get();
-        if(count($comments) > 0) {
+    public function storeComments($comment, $goods) {
+        $comment_checker = Comment::where('goods_id',$goods->id)->where('comment',$comment)->sharedLock()->exists();
+        if($comment_checker) {
             $this->info('double comment');
         }else{
-            $this->sendEmail($goods,$comment,$mailSent);
+            $this->sendEmail($goods,$comment);
         }
     }
 
@@ -172,9 +172,8 @@ class SendNotification extends Command
         $this->driver = RemoteWebDriver::create('http://localhost:4444', $caps);
     }
 
-    public function sendEmail($goods, $comment,$mailSent) {
+    public function sendEmail($goods, $comment) {
 
-        $this->info($comment);
         $user = $this->user;
 
         $content = $user->name."様 コメントがあります。". PHP_EOL .PHP_EOL;
@@ -220,8 +219,10 @@ class SendNotification extends Command
             'goods_id' => $goods->id,
             'comment' => $comment,
         ]);
-
-        User::where('id',$user->id)->lockForUpdate()->update(array('mailSent' => $mailSent + 1));
+        DB::transaction(function() {
+            // User::where('id',$user->id)->lockForUpdate()->update(array('mailSent' => $mailSent + 1));
+            User::find($user->id)->increment('mailSent', 1);
+        });
         
     }
 }
