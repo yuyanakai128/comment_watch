@@ -5,6 +5,8 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 
 use DB;
+use App\Models\Goods;
+use App\Models\Comment;
 
 class DeleteDuplicate extends Command
 {
@@ -13,7 +15,7 @@ class DeleteDuplicate extends Command
      *
      * @var string
      */
-    protected $signature = 'delete:duplicate';
+    protected $signature = 'delete:comment';
 
     /**
      * The console command description.
@@ -41,6 +43,12 @@ class DeleteDuplicate extends Command
     {
         // $sql = 'DELETE FROM register_url WHERE ID NOT IN (SELECT * FROM (SELECT MAX(ID) AS MaxRecordID FROM register_url GROUP BY user_id,itemName,itemImageUrl) AS tmptable);';
         // DB::statement($sql);
+        $comments = Comment::get();
+        foreach($comments as $comment) {
+            if($comment->goods == null) {
+                $comment->delete();$this->info("deleted".$comment->id);
+            }
+        }
         return 0;
     }
 }
