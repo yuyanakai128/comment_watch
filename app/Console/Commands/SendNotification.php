@@ -214,15 +214,17 @@ class SendNotification extends Command
         // 結果の出力
         $this->info("sent");
 
+        User::find($user->id)->lockForUpdate()->increment('mailSent', 1);
+
         Comment::create([
             'user_id' => $user->id,
             'goods_id' => $goods->id,
             'comment' => $comment,
         ]);
-        DB::transaction(function() {
+        // DB::transaction(function() {
             // User::where('id',$user->id)->lockForUpdate()->update(array('mailSent' => $mailSent + 1));
-            User::find($user->id)->increment('mailSent', 1);
-        });
+            
+        // });
         
     }
 }
