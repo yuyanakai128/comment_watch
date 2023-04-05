@@ -64,12 +64,14 @@
                                             <td>{{$notification->lower_price}}</td>
                                             <td>{{$notification->upper_price}}</td>
                                             <td>
-                                                @if ($notification->category->level == 0)
-                                                {{$notification->category->name}}
-                                                @elseif($notification->category->level == 1) 
-                                                {{$notification->category->parent->name}}<br>{{$notification->category->name}}
-                                                @else
-                                                {{$notification->category->parent->parent->name}}<br>{{$notification->category->parent->name}}<br>{{$notification->category->name}}
+                                                @if($notification->category !== null)
+                                                    @if ($notification->category->level == 0)
+                                                    {{$notification->category->name}}
+                                                    @elseif($notification->category->level == 1) 
+                                                    {{$notification->category->parent->name}}<br>{{$notification->category->name}}
+                                                    @else
+                                                    {{$notification->category->parent->parent->name}}<br>{{$notification->category->parent->name}}<br>{{$notification->category->name}}
+                                                    @endif
                                                 @endif
                                             </td>  
                                             <td>
