@@ -36,6 +36,6 @@ class Notification extends Model
 
     public function goods()
     {
-        return $this->hasMany(Goods::class);
+        return $this->hasMany(Goods::class)->where('deleted',0);
     }
 }

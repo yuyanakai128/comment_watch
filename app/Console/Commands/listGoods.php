@@ -173,7 +173,7 @@ class listGoods extends Command
     public function storeGoods($results,$notification_id) {
         $inserted_data = [];
         $items = $results;
-        $goods = Goods::where('notification_id',$notification_id)->get();
+        $goods = Goods::where('notification_id',$notification_id)->where('deleted',0)->get();
         foreach($goods as $item) {
             foreach($results as $key => $result) {
                 if($item->link == $result['link']) {
@@ -196,13 +196,10 @@ class listGoods extends Command
             $this->info('delete');
             $limit = count($goods) + count($inserted_data) - self::SENT_COUNT;
 
-            $deleted_items = Goods::where('notification_id',$notification_id)->orderBy('id','DESC')->take($limit)->get();
+            Goods::where('notification_id',$notification_id)->orderBy('id','DESC')->take($limit)->update([
+                'deleted' => 1
+            ]);
             
-            foreach($deleted_items as $key => $item) {
-                Comment::where('goods_id',$item->id)->delete();
-            }
-            
-            Goods::where('notification_id',$notification_id)->orderBy('id','DESC')->take($limit)->delete();
         }
         Goods::lockForUpdate()->insert($inserted_data);
     }
