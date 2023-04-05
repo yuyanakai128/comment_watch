@@ -133,6 +133,7 @@ class SendNotification extends Command
             $this->info('double comment');
         }else{
             $this->sendEmail($goods,$comment);
+            sleep(1);
         }
     }
 
