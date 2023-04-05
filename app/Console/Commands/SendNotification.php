@@ -177,6 +177,12 @@ class SendNotification extends Command
 
         $user = $this->user;
 
+        Comment::create([
+            'user_id' => $user->id,
+            'goods_id' => $goods->id,
+            'comment' => $comment,
+        ]);
+
         $content = $user->name."様 コメントがあります。". PHP_EOL .PHP_EOL;
 
         $title =  "商品名 :　".$goods->itemName. PHP_EOL ." : ".$goods->price."円". PHP_EOL ."商品ページ : ".$goods->link. PHP_EOL;
@@ -214,14 +220,10 @@ class SendNotification extends Command
         
         // 結果の出力
         $this->info("sent");
+        $this->info(json_encode($user));
 
         User::where('id',$user->id)->lockForUpdate()->increment('mailSent', 1);
 
-        Comment::create([
-            'user_id' => $user->id,
-            'goods_id' => $goods->id,
-            'comment' => $comment,
-        ]);
         // DB::transaction(function() {
             // User::where('id',$user->id)->lockForUpdate()->update(array('mailSent' => $mailSent + 1));
             
