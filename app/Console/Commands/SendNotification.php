@@ -149,7 +149,7 @@ class SendNotification extends Command
         $this->driver->wait(5000,1000)->until(
             function () {
                 $elements = $this->driver->findElements(WebDriverBy::XPath("//main[contains(@id,'main')]"));
-                sleep(3);
+                sleep(5);
                 return count($elements) > 0;
             },
         );
