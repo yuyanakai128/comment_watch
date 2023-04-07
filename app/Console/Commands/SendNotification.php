@@ -88,7 +88,7 @@ class SendNotification extends Command
                         $this->initBrowser();
                         if($this->status) {
                             try {
-                                $crawler = $this->getPageHTMLUsingBrowser($item->link);
+                                $crawler = $this->getPageHTMLUsingBrowser($item->link);$this->info('ok');
                                 $crawler->filter('#item-info .mer-spacing-b-24 .mer-spacing-b-16 mer-text')->each(function($node) use ($item) {
                                     $text = $node->siblings()->filter('span')->text();
                                     if(str_contains($text,'分前')){
@@ -148,8 +148,8 @@ class SendNotification extends Command
 
         $this->driver->wait(5000,1000)->until(
             function () {
-                $elements = $this->driver->findElements(WebDriverBy::XPath("//div[contains(@id,'item-info')]"));
-                sleep(3);
+                $elements = $this->driver->findElements(WebDriverBy::XPath("//main[contains(@id,'main')]"));
+                sleep(5);
                 return count($elements) > 0;
             },
         );
